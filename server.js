@@ -17,44 +17,64 @@ const db = new sqlite3.Database('./db/election.db', err => {
     console.log('Connected to the election database.');
 });
 
-app.use((req, res) => {
-    res.status(404).end();
-});
-
-// get all candidates
-// app.get('/api/candidates', (req, res) => {
-//     const sql = `SELECT * FROM candidates`;
-//     const params = [];
-//     db.all(sql, params, (err, rows) => {
-//         if (err) {
-//             res.status(500).json({ error: err.message });
-//             return;
-//         };
-
-//         res.json({
-//             message: 'success',
-//             data: rows
-//         });
+// test server hello world
+// app.get('/', (req, res) => {
+//     res.json({
+//         message: 'Hello World'
 //     });
 // });
 
-// db.all(`SELECT * FROM candidates`, (err, rows) => {
-//     console.log(rows);
-// });
+// get all candidates
+app.get('/api/candidates', (req, res) => {
+    const sql = `SELECT * FROM candidates`;
+    const params = [];
+    db.all(sql, params, (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        };
 
-app.get('/', (req, res) => {
-    res.json({
-        message: 'Hello World'
+        res.json({
+            message: 'success',
+            data: rows
+        });
     });
 });
 
 // GET a single candidate
-// db.get(`SELECT * FROM candidates WHERE id = 5`, (err, row) => {
-//     if(err) {
-//         console.log(err);
-//     }
-//     console.log(row);
-// });
+app.get('/api/candidate/:id', (req, res) => {
+    const sql = `SELECT * FROM candidates WHERE id = ?`;
+    const params = [req.params.id];
+    db.get(sql, params, (err, row) => {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+
+        res.json({
+            message: 'success',
+            data: row
+        });
+    });
+});
+
+// delete a candidate
+app.delete('/api/candidate/:id', (req, res) => {
+    const sql = `DELETE FROM candidates WHERE id = ?`;
+    const params = [req.params.id];
+    db.run(sql, params, function(err, result) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+
+        res.json({
+            message: 'successfully deleted',
+            changes: this.changes
+        });
+    });
+});
+
 
 // DELETE a candidate
 // db.run(`DELETE FROM candidates WHERE id =?`, 2, function(err, result) {
@@ -74,6 +94,10 @@ app.get('/', (req, res) => {
 //     }
 //     console.log(result, this.lastID);
 // });
+
+app.use((req, res) => {
+    res.status(404).end();
+});
 
 // Start server after DB connection
 db.on('open', () => {
