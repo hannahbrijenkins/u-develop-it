@@ -3,6 +3,7 @@ const express = require('express');
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+
 // Express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -20,9 +21,32 @@ app.use((req, res) => {
     res.status(404).end();
 });
 
+// get all candidates
+// app.get('/api/candidates', (req, res) => {
+//     const sql = `SELECT * FROM candidates`;
+//     const params = [];
+//     db.all(sql, params, (err, rows) => {
+//         if (err) {
+//             res.status(500).json({ error: err.message });
+//             return;
+//         };
+
+//         res.json({
+//             message: 'success',
+//             data: rows
+//         });
+//     });
+// });
+
 // db.all(`SELECT * FROM candidates`, (err, rows) => {
 //     console.log(rows);
 // });
+
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Hello World'
+    });
+});
 
 // GET a single candidate
 // db.get(`SELECT * FROM candidates WHERE id = 5`, (err, row) => {
@@ -41,15 +65,15 @@ app.use((req, res) => {
 // });
 
 // Create a candidate
-const sql = 'INSERT INTO candidates (id, first_name, last_name, industry_connected) VALUES (?,?,?,?)';
-const params = [4, 'Charles', 'LeRoi', 1];
-// ES5 function, not arrow function, to use this
-db.run(sql, params, function(err, result) {
-    if (err) {
-        console.log(err);
-    }
-    console.log(result, this.lastID);
-});
+// const sql = 'INSERT INTO candidates (id, first_name, last_name, industry_connected) VALUES (?,?,?,?)';
+// const params = [4, 'Charles', 'LeRoi', 1];
+// // ES5 function, not arrow function, to use this
+// db.run(sql, params, function(err, result) {
+//     if (err) {
+//         console.log(err);
+//     }
+//     console.log(result, this.lastID);
+// });
 
 // Start server after DB connection
 db.on('open', () => {
