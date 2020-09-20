@@ -1,4 +1,5 @@
 const sqlite3 =require('sqlite3').verbose();
+const { rosybrown } = require('color-name');
 const express = require('express');
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -106,6 +107,81 @@ app.post('/api/candidate', ({ body }, res) => {
             data: body,
             id: this.lastID
         });
+    });
+});
+
+// updating candidate parties
+app.put('/api/candidate/:id', (req, res) => {
+    const errors = inputCheck(req.body, 'party_id');
+
+    if (errors) {
+            res.status(400).json({ error: errors });
+            return;
+    };
+    
+    const sql = `UPDATE candidates SET party_id = ? 
+                 WHERE id = ?`;
+    const params = [req.body.party_id, req.params.id];
+  
+    db.run(sql, params, function(err, result) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+  
+        res.json({
+            message: 'success',
+            data: req.body,
+            changes: this.changes
+        });
+    });
+});
+
+// get parties names and descriptions
+app.get('/api/parties', (req, res) => {
+    const sql = `SELECT * FROM parties`;
+    const params = [];
+    db.all(sql, params, (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+
+        res.json({
+            message: 'success',
+            data: rows
+        });
+    });
+});
+
+// get an individual party name and description
+app.get('/api/party/:id', (req, res) => {
+    const sql = `SELECT * FROM parties WHERE id = ?`;
+    const params = [req.params.id];
+    db.get(sql, params, (err, row) => {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+  
+        res.json({
+            message: 'success',
+            data: row
+        });
+    });
+});
+
+// deleting parties
+app.delete('/api/party/:id', (req, res) => {
+    const sql = `DELETE FROM parties WHERE id = ?`;
+    const params = [req.params.id];
+    db.run(sql, params, function(err, result) {
+        if (err) {
+            res.status(400).json({ error: res.message });
+            return;
+        }
+  
+        res.json({ message: 'successfully deleted', changes: this.changes });
     });
 });
 
